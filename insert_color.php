@@ -40,8 +40,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $hue = 0;
         }
         $brightness = calculateBrightness($r, $g, $b);
+        $color = $_POST["color"];
+        // Convert the hex color to RGB values
+        list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
+        // Calculate the hue (you can reuse the existing calculation for hue)
+        $max = max($r, $g, $b);
+        $min = min($r, $g, $b);
+        if ($max === $min) {
+            $hue = 0;
+        } elseif ($max === $r) {
+            $hue = 60 * (($g - $b) / ($max - $min));
+        } elseif ($max === $g) {
+            $hue = 60 * (2 + ($b - $r) / ($max - $min));
+        } elseif ($max === $b) {
+            $hue = 60 * (4 + ($r - $g) / ($max - $min));
+        }
+        if (!is_numeric($hue)) {
+            $hue = 0;
+        }
+        $brightness = calculateBrightness($r, $g, $b);
         $mode = $_POST["mode"];
-        $sql = "INSERT INTO settings (mode, r, g, b, hue, brightness) VALUES ('$mode', '$r', '$g', '$b', '$hue', '$brightness')";
+        $sql = "INSERT INTO main_settings (mode, r, g, b, hue, brightness) VALUES ('$mode', '$r', '$g', '$b', '$hue', '$brightness')";
         if ($conn->query($sql) === true) {
             echo "Record added successfully.";
         } else {
