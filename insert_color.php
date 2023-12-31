@@ -17,6 +17,35 @@ function calculateBrightness($r, $g, $b) {
     return (0.299 * $r + 0.587 * $g + 0.114 * $b);
 }
 
+function calculateHue($r, $g, $b) {
+    $max = max($r, $g, $b);
+    $min = min($r, $g, $b);
+    $delta = $max - $min;
+
+    if ($delta == 0) {
+        return 0;
+    }
+
+    $hue = 0;
+    if ($max === $r) {
+        $hue = 60 * (($g - $b) / $delta % 6);
+    } elseif ($max === $g) {
+        $hue = 60 * (($b - $r) / $delta + 2);
+    } elseif ($max === $b) {
+        $hue = 60 * (($r - $g) / $delta + 4);
+    }
+
+    // Ensure the hue is within the valid range [0, 360)
+    $hue = ($hue + 360) % 360;
+
+    // Rescale hue to [0, 255]
+    $rescaledHue = round(($hue / 360) * 255);
+
+    return $rescaledHue;
+}
+
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["color"])) {
         // Handle the "Color Settings" form
@@ -24,40 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $color = $_POST["color"];
         // Convert the hex color to RGB values
         list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
-        // Calculate the hue (you can reuse the existing calculation for hue)
-        $max = max($r, $g, $b);
-        $min = min($r, $g, $b);
-        if ($max === $min) {
-            $hue = 0;
-        } elseif ($max === $r) {
-            $hue = 60 * (($g - $b) / ($max - $min));
-        } elseif ($max === $g) {
-            $hue = 60 * (2 + ($b - $r) / ($max - $min));
-        } elseif ($max === $b) {
-            $hue = 60 * (4 + ($r - $g) / ($max - $min));
-        }
-        if (!is_numeric($hue)) {
-            $hue = 0;
-        }
-        $brightness = calculateBrightness($r, $g, $b);
-        $color = $_POST["color"];
-        // Convert the hex color to RGB values
-        list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
-        // Calculate the hue (you can reuse the existing calculation for hue)
-        $max = max($r, $g, $b);
-        $min = min($r, $g, $b);
-        if ($max === $min) {
-            $hue = 0;
-        } elseif ($max === $r) {
-            $hue = 60 * (($g - $b) / ($max - $min));
-        } elseif ($max === $g) {
-            $hue = 60 * (2 + ($b - $r) / ($max - $min));
-        } elseif ($max === $b) {
-            $hue = 60 * (4 + ($r - $g) / ($max - $min));
-        }
-        if (!is_numeric($hue)) {
-            $hue = 0;
-        }
+        $hue = calculateHue($r, $g, $b);
         $brightness = calculateBrightness($r, $g, $b);
         $mode = $_POST["mode"];
         $sql = "INSERT INTO main_settings (mode, r, g, b, hue, brightness) VALUES ('$mode', '$r', '$g', '$b', '$hue', '$brightness')";
@@ -90,23 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 }
 
-function calculateHue($r, $g, $b) {
-    $max = max($r, $g, $b);
-    $min = min($r, $g, $b);
-    if ($max === $min) {
-        return 0;
-    }
-    $delta = $max - $min;
-    $hue = 0;
-    if ($max === $r) {
-        $hue = 60 * ((($g - $b) / $delta) % 6);
-    } elseif ($max === $g) {
-        $hue = 60 * ((($b - $r) / $delta) + 2);
-    } elseif ($max === $b) {
-        $hue = 60 * ((($r - $g) / $delta) + 4);
-    }
-    return $hue;
-}
 header("Location: /"); // Replace "/" with the desired URL
 exit; // Make sure to exit to prevent further script execution
 ?>
+

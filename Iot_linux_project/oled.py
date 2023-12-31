@@ -104,6 +104,8 @@ brightnesscontrol = 0
 dir = 0.1
 huecolor = 0
 
+counter = 0
+
 
 def hue_to_rgb(hue):
     # Ensure that hue is in the range [0, 1]
@@ -137,9 +139,10 @@ while True:
         str(darkmode)
     )
 
-    
 
     mqttmanager.send_data(datastring)
+
+    
 
     for i in range (1000):
         # Check if the button is pressed and adjust the mode
