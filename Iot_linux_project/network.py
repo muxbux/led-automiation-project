@@ -3,7 +3,8 @@ import platform
 
 def is_ip_active(ip):
     # Determine the appropriate ping command based on the operating system
-    if platform.system().lower() == "windows":
+    system = platform.system().lower()
+    if system == "windows":
         command = ["ping", "-n", "1", ip]
     else:
         command = ["ping", "-c", "1", ip]

@@ -23,6 +23,7 @@ import off_settings
 import clock_colors
 import main_settings
 import mqtt_manager as mqttmanager
+import network
 
 from datetime import datetime, time, timedelta
 
@@ -232,13 +233,15 @@ while True:
     # print("is between times: " + str(is_between_times))
     # print("\n")
 
+    lan = network.is_ip_active("192.168.0.120")
     if(is_between_times):
         darkmode = True
     if(last_off_settings.enableDarkMode):
         darkmode = True
     if((last_off_settings.prioritizeRFID == True and reading == "Activated") or (last_off_settings.prioritizeLAN == True and lan  == False)):
         darkmode = False
-
+        
+    # print("lan on?: " + str(lan))
     # print("prio rfid: " + str(last_off_settings.prioritizeRFID))
     # print("prio lan: " + str(last_off_settings.prioritizeLAN))
     # print("isbetweentimes: " + str(is_between_times))
